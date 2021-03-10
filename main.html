@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+    <!-- 
+        : title: js_pic_view;
+        : GNU General Public License v3.0;
+        : code author: gamefunc, 32686647, https://github.com/gamefunc/js_pic_view;
+        : js点击图片左右切换上下页与图片自适应显示区域;
+        : 需要修改<title>与MAX_IMG_NUM; 
+        : 免责声明: 任何人可使用该代码, 但要保留以上信息与责任自负;
+    -->
+    <html>
+        <head>
+            <meta charset="utf-8"/>
+            <title> 标题名字 </title>
+            <style>
+                body {
+                    background-color: #000000;
+                }
+            </style>
+
+            <!-- 全局变量  -->
+            <script type="text/javascript">
+                var NOW_IMG_NUM = 0;
+                // 最大页数;
+                const MAX_IMG_NUM = 10000;
+            </script>
+
+            <!-- 公共函数  -->
+            <script type="text/javascript">
+                // 根据img num 获取文件名;
+                function get_image_filename(img_num){
+                    let img_num_str = img_num.toString();
+                    let filename = "0".repeat(8 - img_num_str.length);
+                    filename = filename + img_num_str + ".webp";
+                    return filename;
+                }//get_image_filename()
+
+                function change_page_p_text(){
+                    let page_p_obj = document.getElementById("page_p");
+                    let show_text = "当前页面num: " + NOW_IMG_NUM + ",&ensp;最大num: " + MAX_IMG_NUM;
+                    page_p_obj.innerHTML = show_text;
+                }
+
+                // 根据屏幕高宽修改图片显示大小;
+                function adaption_img_display_size(){
+                    // 浏览器实际显示区域的高宽, 不包含边框;
+                    let display_w = document.documentElement.clientWidth;
+                    let display_h = document.documentElement.clientHeight;
+                    
+                    let img_obj = document.getElementById("img_p");
+                    // 获取img_obj 当前显示大小;
+                    let img_obj_display_w = img_obj.width;
+                    let img_obj_display_h = img_obj.height;
+                    // 获取img_obj原始大小;
+                    let img_src_w = img_obj.naturalWidth;
+                    let img_src_h = img_obj.naturalHeight;
+                    
+                    // 根据屏幕宽高做事情;
+                    if(display_w > display_h){
+                        // pc, 横屏, 高度适应屏幕;
+                        let out_h = display_h;
+                        let radio = img_src_h / out_h;
+                        let out_w = img_src_w / radio;
+                        img_obj.width = out_w;
+                        img_obj.height = out_h;
+                    }else{
+                        // phone, 竖屏, 宽度适应屏幕;
+                        let out_w = display_w;
+                        let radio = img_src_w / out_w;
+                        let out_h = img_src_h / radio;
+                        // 上面适应宽度后如果高度不适应, 再调整;
+                        if(out_h > display_h){
+                            radio = out_h / display_h;
+                            out_h = display_h;
+                            out_w = out_w / radio;
+                            // out_h = display_h;
+                        }
+                        img_obj.width = out_w;
+                        img_obj.height = out_h;
+                    }// if else pc / phone;
+
+                    // 修改h2 page_p显示的页面内容;
+                    change_page_p_text();
+                }// adaption_img_display_size()
+            </script>
+
+            <!--页面切换函数-->
+            <script>
+                // 切换到上一张图片;
+                function change_to_frontward_img(){
+                    let img_obj = document.getElementById("img_p");
+                    if(NOW_IMG_NUM > 0){
+                        let filename = get_image_filename(NOW_IMG_NUM - 1);
+                        img_obj.src=filename;
+                        NOW_IMG_NUM--;
+                        img_obj.onload = function(){
+                            adaption_img_display_size();
+                        }//onload()
+                    }// if(NOW_IMG_NUM > 0)
+                }//change_to_frontward_img()
+
+                // 切换到下一张图片;
+                function change_to_backward_img(){
+                    let img_obj = document.getElementById("img_p");
+                    if(NOW_IMG_NUM < MAX_IMG_NUM){
+                        let filename = get_image_filename(NOW_IMG_NUM + 1);
+                        img_obj.src=filename;
+                        NOW_IMG_NUM++;
+                        img_obj.onload = function(){
+                            adaption_img_display_size();
+                        }//onload()
+                    }// if(NOW_IMG_NUM < MAX_IMG_NUM)
+                }//change_to_backward_img()
+
+                // 跳转到指定页面;
+                function change_to_appoint_img(){
+                    let page_num_bar_obj = document.getElementById("page_num_bar");
+                    if (page_num_bar_obj.value == "") { return 0; }
+                    let appoint_num = Number(page_num_bar_obj.value);
+                    
+                    let img_obj = document.getElementById("img_p");
+                    if(appoint_num >= 0 && appoint_num < MAX_IMG_NUM){
+                        let filename = get_image_filename(appoint_num);
+                        img_obj.src=filename;
+                        NOW_IMG_NUM = appoint_num;
+                        img_obj.onload = function(){
+                            adaption_img_display_size();
+                        }//onload()
+                        page_num_bar_obj.value = "";
+                    }// if 跳转大小在范围;
+                }//change_to_appoint_img()
+
+
+                // 获取鼠标点击位置调用指定函数;
+                function click_img_event(){
+                    // 获取点击位置;
+                    let x = event.clientX;
+                    let y = event.clientY;
+
+                    let img_obj = document.getElementById("img_p");
+                    // 获取img_obj 当前显示大小;
+                    let img_obj_display_w = img_obj.width;
+                    // 获取img_obj左上位置x, y;
+                    let img_src_x = img_obj.x;
+                    let img_src_y = img_obj.y;
+                    // 计算中间位置;
+                    let middle_pos = (img_obj_display_w / 2) + img_src_x;
+                    if(x < middle_pos){
+                        change_to_frontward_img();
+                    }else{
+                        change_to_backward_img();
+                    }// if else 点击位置;
+                }// click_img_event()
+
+            </script>
+        </head>
+
+        <body>
+            <center>
+                <!--图片obj, 点击切换到下一页 -->
+                <img id="img_p" src="00000000.webp" onclick="click_img_event()">
+                <br>
+                
+                <h2 id="page_p" style="color: white"> 当前页面0 </h2>
+                <script>
+                    change_page_p_text();
+                    document.getElementById("img_p").onload = function(){
+                        adaption_img_display_size();
+                    }//img.onload()
+                </script>
+                <h1 style="color: blue">点击图片右边切换到下一页, 点击图片左边切换到上一页</h1>
+                <h1 style="color: blue">code提供方: gamefunc 32686647</h1>
+            
+                <!-- 上一页点击按钮 -->
+                <input type="button" onclick="change_to_frontward_img()" value="上一页">
+                <br>
+
+                <!-- 下一页点击按钮 -->
+                <input type="button" onclick="change_to_backward_img()" value="下一页">
+                <br>
+
+                <!-- 跳转到指定页面文本框与按钮 -->
+                <input type="button" onclick="change_to_appoint_img()" value="跳转到: ">
+                <input type="text" id="page_num_bar">
+                <br><br><br><br><br><br><br>
+            </center>
+        </body>
+    </html>
