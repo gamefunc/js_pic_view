@@ -1,11 +1,11 @@
 <!DOCTYPE html>
     <!-- 
         : title: js_pic_view_lr;
+        : js点击图片左右切换上下页与图片自适应显示区域;
         : GNU General Public License v3.0;
         : code author: gamefunc, 32686647, https://github.com/gamefunc/js_pic_view;
-        : js点击图片左右切换上下页与图片自适应显示区域;
-        : 图片文件名命名规范需要自定义获取根据get_image_filename();
-        : 需要修改<title>与MAX_IMG_NUM与IMG_EXTENSION; 
+        : 默认图片文件名命名规范如函数: get_image_filename();
+        : 需要修改"作品标题名称", MAX_IMG_NUM, IMG_EXTENSION; 
         : 免责声明: 任何人可使用该代码, 但要保留以上信息与责任自负;
     -->
     <html>
@@ -24,7 +24,7 @@
                 // 最大页数;
                 const MAX_IMG_NUM = 10000;
                 // 图片文件扩展名;
-                var IMG_EXTENSION = ".webp";
+                const IMG_EXTENSION = ".webp";
             </script>
 
             <!-- 公共函数  -->
