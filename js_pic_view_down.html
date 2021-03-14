@@ -1,11 +1,11 @@
 <!DOCTYPE html>
     <!-- 
         : title: js_pic_view_down;
+        : js向下滚动加载新图片;
         : GNU General Public License v3.0;
         : code author: gamefunc, 32686647, https://github.com/gamefunc/js_pic_view;
-        : js向下滚动加载新图片;
-        : 图片文件名命名规范需要自定义获取根据get_image_filename();
-        : 需要修改<title>与MAX_IMG_NUM与IMG_EXTENSION; 
+        : 默认图片文件名命名规范如函数: get_image_filename();
+        : 需要修改"作品标题名称", MAX_IMG_NUM, IMG_EXTENSION; 
         : 免责声明: 任何人可使用该代码, 但要保留以上信息与责任自负;
     -->
     <html>
@@ -24,9 +24,13 @@
                 // 最大页num;
                 const MAX_IMG_NUM = 10000;
                 // 图片文件扩展名;
-                var IMG_EXTENSION = ".webp";
+                const IMG_EXTENSION = ".webp";
                 // 预加载图片数量;
-                var NUM_OF_PRE_ADD_IMG = 10;
+                const NUM_OF_PRE_ADD_IMG = 10;
+                // 滚到已底部往上多少像素时加载新图片(一张图大概height = 1000);
+                const LOAD_NEW_IMG_MONENT = 5000;
+                // 滚动到底部后加载多少张新图片;
+                const NUM_OF_PER_NEW_IMG = 10;
                 // 记录已存在的img_obj_id名;
                 var EXISTS_IMG_OBJS_NAME = [];
             </script>
@@ -51,9 +55,11 @@
                     let show_height = document.documentElement.clientHeight;
                     // 当前滚动条与顶部的距离, -300是方便不用拉到底部与适应手机版edge;
                     let scroll_now_h = document.documentElement.scrollTop;
-                    if(show_height + scroll_now_h >= scroll_full_h - 300){
-                        add_backward_img();
-                    }
+                    if(show_height + scroll_now_h >= scroll_full_h - LOAD_NEW_IMG_MONENT){
+                        for(let i = 0; i < NUM_OF_PER_NEW_IMG; i++){
+                            add_backward_img();
+                        }// for 每次滚到到底部添加多少张新图片;
+                    }// 如果滚到到接近底部;
                 }// 监听滚动到底部()
             </script>
 
@@ -197,11 +203,10 @@
                     // not a num(非数字)的话, return;
                     if(isNaN(appoint_num)){ return 0; }
 
-                    // 先清除所有img_obj;
-                    clean_up_main_p_div();
-
                     // 再添加img_obj到main_p;
-                    if(appoint_num >= 0 && appoint_num < MAX_IMG_NUM){
+                    if(appoint_num >= 0 && appoint_num <= MAX_IMG_NUM){
+                        // 先清除所有img_obj;
+                        clean_up_main_p_div();
                         add_img_obj_to_main_p(appoint_num);
                         page_num_bar_obj.value = "";
                     }// if 跳转大小在范围;
