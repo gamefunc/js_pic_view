@@ -26,11 +26,11 @@
                 // 图片文件扩展名;
                 const IMG_EXTENSION = ".webp";
                 // 预加载图片数量;
-                const NUM_OF_PRE_ADD_IMG = 10;
+                const NUM_OF_PRE_ADD_IMG = 20;
                 // 滚到已底部往上多少像素时加载新图片(一张图大概height = 1000);
                 const LOAD_NEW_IMG_MONENT = 5000;
                 // 滚动到底部后加载多少张新图片;
-                const NUM_OF_PER_NEW_IMG = 10;
+                const NUM_OF_PER_NEW_IMG = 20;
                 // 记录已存在的img_obj_id名;
                 var EXISTS_IMG_OBJS_NAME = [];
             </script>
@@ -65,7 +65,7 @@
 
             <!-- 公共函数  -->
             <script type="text/javascript">
-                // 根据img num 获取文件名;
+                // 根据img num 获取文件名; 传入 1,2,3;
                 function get_image_filename(img_num){
                     let img_num_str = img_num.toString();
                     let filename = "0".repeat(8 - img_num_str.length);
@@ -94,8 +94,28 @@
                     document.getElementById("main_p").innerHTML = "";
                 }//clean_up_main_p_div()
 
+                
+                // 点击图片改变图片显示是实际大小还是适应屏幕高宽;
+                // 传入 "img_p_8";
+                function change_img_view_size(img_id_name){
+                    let img_obj = document.getElementById(img_id_name);
+                    // 获取img_obj 当前显示大小;
+                    let img_obj_display_w = img_obj.width;
+                    let img_obj_display_h = img_obj.height;
+                    // 获取img_obj原始大小;
+                    let img_src_w = img_obj.naturalWidth;
+                    let img_src_h = img_obj.naturalHeight;
 
-                // 根据屏幕高宽修改图片显示大小;
+                    if(img_obj_display_w != img_src_w){
+                        img_obj.width = img_src_w;
+                        img_obj.height = img_src_h;
+                    }else{
+                        adaption_img_display_size(img_id_name);
+                    }
+                }// change_img_view_size()
+
+
+                // 根据屏幕高宽修改图片显示大小; 传入: "img_p_8";
                 function adaption_img_display_size(img_id_name){
                     // 浏览器实际显示区域的高宽, 不包含边框;
                     let display_w = document.documentElement.clientWidth;
@@ -135,7 +155,7 @@
                 }// adaption_img_display_size()
 
 
-                // 根据屏幕高宽修改全部图片显示大小;
+                // 根据屏幕高宽修改全部图片显示大小; 传入: "img_p_8";
                 function adaption_all_img_display_size(img_id_name){
                     for(let i = 0; i < EXISTS_IMG_OBJS_NAME.length; i++){
                         adaption_img_display_size(EXISTS_IMG_OBJS_NAME[i]);
@@ -143,17 +163,43 @@
                 }// adaption_all_img_display_size()
 
 
-                // 给指定id的div添加元素;
+                // 给指定id的div添加元素; 传入数字: 0, 1, 2 ,3;
                 function add_img_obj_to_main_p(appoint_num){
                     let main_obj = document.getElementById("main_p");
                     // 添加几个<br>;
                     main_obj.innerHTML += "<br>".repeat(3);
+
                     // 创建一个<input type=button 点击回到顶部的按钮;
                     let to_top_button = document.createElement("input");
                     to_top_button.type = "button";
                     to_top_button.value = "回到顶部";
                     to_top_button.setAttribute("onclick", "to_scroll_top()");
                     main_obj.appendChild(to_top_button);
+                    main_obj.innerHTML += "&emsp;".repeat(3);
+
+                    // 创建一个<input type=button 点击加载指定页面;
+                    let page_num_bar_id = appoint_num + 100;
+                    page_num_bar_id = "page_num_bar_p_" + page_num_bar_id;
+
+                    let load_appoint_button = document.createElement("input");
+                    load_appoint_button.type = "button";
+                    load_appoint_button.value = "跳转到指定页面: ";
+                    load_appoint_button.setAttribute(
+                        "onclick", 
+                        "direct_load_appoint_img('{}')".replace(
+                            "{}", page_num_bar_id));
+                    main_obj.appendChild(load_appoint_button);
+                    
+                    // 创建text条用来输入页面num用;;
+                    let page_num_text_line = document.createElement("input");
+                    page_num_text_line.type = "text";
+                    page_num_text_line.id = page_num_bar_id;
+                    page_num_text_line.setAttribute(
+                        "onkeyup", 
+                        "listen_page_num_bar_enter('{}')".replace(
+                            "{}", page_num_bar_id));
+                    main_obj.appendChild(page_num_text_line);
+
 
                     // 添加该图片的文字信息;
                     let img_description = "以下页面num为: " + appoint_num +
@@ -169,6 +215,10 @@
                     let filename = get_image_filename(appoint_num);
                     img_obj.setAttribute("id", img_obj_name);
                     img_obj.setAttribute("src", filename);
+                    img_obj.setAttribute(
+                        "onclick", 
+                        "change_img_view_size('{}')".replace(
+                            "{}", img_obj_name));
 
                     // NOW_IMG_NUM 设为该图片的num;
                     NOW_IMG_NUM = appoint_num;
@@ -196,8 +246,9 @@
 
 
                 // 直接显示指定页面的图片;
-                function direct_load_appoint_img(){
-                    let page_num_bar_obj = document.getElementById("page_num_bar_p");
+                // 传入"page_num_bar_p_8";
+                function direct_load_appoint_img(page_num_bar_id){
+                    let page_num_bar_obj = document.getElementById(page_num_bar_id);
                     if (page_num_bar_obj.value == "") { return 0; }
                     let appoint_num = Number(page_num_bar_obj.value);
                     // not a num(非数字)的话, return;
@@ -209,14 +260,16 @@
                         clean_up_main_p_div();
                         add_img_obj_to_main_p(appoint_num);
                         page_num_bar_obj.value = "";
+                        to_scroll_top();
                     }// if 跳转大小在范围;
                 }//direct_load_appoint_img()
 
 
                 // 监听page_num_bar回车按钮后触发事件;
-                function listen_page_num_bar_enter(){
+                // 传入"page_num_bar_p_8";
+                function listen_page_num_bar_enter(page_num_bar_id){
                     if(event.keyCode == 13){// \n
-                        direct_load_appoint_img();
+                        direct_load_appoint_img(page_num_bar_id);
                     }
                 }//listen_page_num_bar_enter()
             </script>
@@ -228,8 +281,11 @@
                 <h1 style="color: blue">code提供方: gamefunc 32686647</h1>
 
                 <!-- 跳转到指定页面文本框与按钮 -->
-                <input type="button" onclick="direct_load_appoint_img()" value="直接加载到指定页面: ">
-                <input type="text" id="page_num_bar_p" onkeyup="listen_page_num_bar_enter()">
+                <input type="button" 
+                    onclick="direct_load_appoint_img('page_num_bar_p_0')" 
+                    value="直接加载到指定页面: ">
+                <input type="text" id="page_num_bar_p_0" 
+                    onkeyup="listen_page_num_bar_enter('page_num_bar_p_0')">
                 <br>
 
                 <!--延申插入元素用的div-->
