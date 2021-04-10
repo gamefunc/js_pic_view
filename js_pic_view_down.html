@@ -190,7 +190,7 @@
                             "{}", page_num_bar_id));
                     main_obj.appendChild(load_appoint_button);
                     
-                    // 创建text条用来输入页面num用;;
+                    // 创建text条用来输入页面num用;
                     let page_num_text_line = document.createElement("input");
                     page_num_text_line.type = "text";
                     page_num_text_line.id = page_num_bar_id;
@@ -229,7 +229,8 @@
                     main_obj.appendChild(img_obj);
                     // 当图片加载完毕后调整图片显示适应框体;
                     img_obj.onload = function(){
-                        adaption_all_img_display_size();
+                        // adaption_all_img_display_size();
+                        adaption_img_display_size(img_obj_name);
                     }//onload()
                 }// add_img_to_append_p();
             </script>
